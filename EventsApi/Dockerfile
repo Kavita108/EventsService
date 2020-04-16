@@ -16,4 +16,4 @@ RUN dotnet publish "EventsApi.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "CreateEventApi.dll"]
+ENTRYPOINT ["dotnet", "EventsApi.dll"]
