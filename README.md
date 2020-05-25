@@ -1,11 +1,7 @@
 ## EventsService 
 
-
-
-
-
-YoTube Link Assignment3a 
-[https://youtu.be/yY8qPEazIzg]
+YoTube Link Assignment3c
+[https://youtu.be/EunXfA1-1x4]
 
 ## This is a service for EventBrite website.
 
@@ -13,6 +9,13 @@ YoTube Link Assignment3a
 * Clone code
 * Open the project with Visual Studio (Install dependencies like Docker.)
 * Start without Debugging 
+* Build a MVC client
+* Add TokenService Microservice
+* Add Cart services
+* Add Order services
+* Integrate with the client
+* Integrate with the front end
+* Dockerize
 
 
 ## What you can do with this EventHub
@@ -27,6 +30,10 @@ YoTube Link Assignment3a
 
 ## Project object 
 * Building API
+* Building WebMVC
+* Building CartApi
+* Building OrderApi
+* Building TokenApi
 
 Attribute
 App icon icon by Icons8
