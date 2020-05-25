@@ -5,7 +5,7 @@ networks:
    backend:
 
 services:
-   events:
+   event:
     image: event/eventsapi
     build:
       context: .\EventsApi
@@ -15,10 +15,87 @@ services:
       DatabaseName: EventDb
       DatabaseUser: sa
       DatabasePassword: EventApi(!)
-      ExternalEventBaseUrl: http://localhost:6700
+      ExternalEventBaseUrl: http://localhost:6900
+    ports:
+      - "6900:80"
+    container_name: eventsapi
+    networks:
+      - backend
+      - frontend
+    depends_on:
+      - mssqlserver
+
+   cart:
+    build:
+      context: .\CartApi
+      dockerfile: Dockerfile
+    image: events/cartapi
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      IdentityUrl: http://192.168.0.28:6700
+      ConnectionString: basket.data
+    ports:
+      - "6801:80"
+    container_name: cartapi
+    networks:
+      - backend
+      - frontend
+    depends_on:
+      - basket.data
+      - tokenserver
+      - rabbitmq
+
+   order:
+    build:
+      context: .\OrderApi
+      dockerfile: Dockerfile
+    image: events/orderapi
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      IdentityUrl: http://192.168.0.28:6700
+      DatabaseServer: mssqlserver
+      DatabaseName: OrdersDb
+      DatabaseUser: sa
+      DatabasePassword: EventApi(!)
+    ports:
+      - "6802:80"
+    container_name: orderapi
+    networks:
+      - backend
+      - frontend
+    depends_on:
+      - mssqlserver
+      - tokenserver
+      - rabbitmq
+
+  
+   tokenserver:
+    build:
+      context: .\TokenServiceApi
+      dockerfile: Dockerfile
+    image: events/tokenapi
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      MvcClient: http://localhost:5210
+      BasketApiClient: https://localhost:6801
     ports:
       - "6700:80"
-    container_name: eventsapi
+    container_name: eventtokenserviceapi
     networks:
       - backend
       - frontend
@@ -35,3 +112,49 @@ services:
     container_name: eventssqlserver
     networks:
       - backend
+
+   webmvc:
+    build:
+      context: .\webMVC
+      dockerfile: Dockerfile
+    image: events/webmvc
+    container_name: eventwebshop
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      EventUrl: http://event
+      IdentityUrl: http://192.168.0.28:6700
+      CallBackUrl: http://localhost:5210
+      CartUrl: http://cart
+      OrderUrl: http://order
+      StripePublicKey: pk_test_VN89mVh0Ow0YJdQN4XOYXQdI00I4xT6jBT
+      StripePrivateKey: sk_test_xAK8vQhyHDdjcJD2dPTelQ0000YPYeJ4gV
+    ports: 
+      - "5210:80"
+    networks:
+      - frontend
+    depends_on:
+      - event
+      - cart
+      - order
+      - tokenserver
+
+   basket.data:
+    image: redis
+    container_name: basketdata
+    ports:
+      - "6080:6379"
+    networks:
+      - backend
+
+   rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: myrabbitmq
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+      - "5671:5671"
+    #volumes:
+      #- ~/rabbitmq:/var/lib/rabbitmq/mnesia   
+    networks:
+      - backend 

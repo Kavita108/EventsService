@@ -107,5 +107,15 @@ namespace EventsApi.Controllers
                 );
             return items;
         }
+
+        [HttpGet]
+        [Route("[action]")]
+        //The idea of this function is to return all the eventtypes available in my database
+        public async Task<IActionResult> EventTypes()
+        {
+            var items = await _context.EventTypes.ToListAsync();
+            return Ok(items);
+        }
+
     }
 }

@@ -34,6 +34,19 @@ namespace EventsApi
             var connectionString = $"Server={server};Database={database};User Id={user};Password={password}";
             services.AddDbContext<EventsContext>(options =>
                 options.UseSqlServer(connectionString));
+
+            services.AddSwaggerGen(options =>
+            {
+                //options.DescribeAllEnumsAsStrings();
+                options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "EventsOnContainers - Events API",
+                    Version = "v1",
+                    Description = "Product catalog microservice"
+                });
+                options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,6 +60,12 @@ namespace EventsApi
             app.UseRouting();
 
             app.UseAuthorization();
+            app.UseSwagger()
+                .UseSwaggerUI(e =>
+                {
+                    e.SwaggerEndpoint("/swagger/v1/swagger.json", "EventsAPI V1");
+                });
+
 
             app.UseEndpoints(endpoints =>
             {
